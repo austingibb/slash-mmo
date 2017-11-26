@@ -18,6 +18,9 @@
   "homepage": "https://github.com/austingibb/slash-mmo#readme",
   "dependencies": {
     "express": "^4.16.2",
+    "lerp": "^1.0.3",
+    "mathjs": "^3.17.0",
+    "node-gameloop": "^0.1.4",
     "socket.io": "^2.0.4"
   }
 }
