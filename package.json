@@ -1,0 +1,19 @@
+{
+  "name": "slash-mmo",
+  "version": "1.0.0",
+  "description": "Slash yo friends. Rise to the top.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/austingibb/slash-mmo.git"
+  },
+  "author": "Austin Gibbons",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/austingibb/slash-mmo/issues"
+  },
+  "homepage": "https://github.com/austingibb/slash-mmo#readme"
+}
