@@ -1,0 +1,3 @@
+D:\Development\slash-mmo\slash-mmo-vs\obj\Debug\slash-mmo-vs.njsprojResolveAssemblyReference.cache
+D:\Development\slash-mmo\slash-mmo-vs\obj\Debug\slash-mmo-vs.njsproj.CoreCompileInputs.cache
+D:\Development\slash-mmo\slash-mmo-vs\bin\Microsoft.NodejsTools.WebRole.dll
