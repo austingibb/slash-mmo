@@ -1,3 +1,2 @@
-var app = require('express')();
-var http = require('http').Server(app);
-var socketio = require('socket.io')(http);
+var game = require('./game/GameLoop.js');
+game.startGame(16);

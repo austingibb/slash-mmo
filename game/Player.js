@@ -17,6 +17,8 @@ module.exports = function Player(initial_x, initial_y, starting_points, givenInt
     this.getRadius = getRadius;
     this.getHeadPos = getHeadPos;
     this.getTailPos = getTailPos;
+    this.isDot = isDot;
+    this.isCoolingDown = isCoolingDown;
 
     // private internally used methods
     // the assignments here set the private method to the passed in function if it is defined, if not use the default function defined here
@@ -33,7 +35,7 @@ module.exports = function Player(initial_x, initial_y, starting_points, givenInt
     this._getDecayPoints = (givenGetDecayPoints != undefined ? givenGetDecayPoints : _defaultGetDecayPoints);
 
     // private member variables
-    // dot mode indicates whether the line is actually a line or if the tail and the head are at the same point
+    // dot mode indicates whether the line is actually a line or if the tail and the head are at the same point acting as a dot
     this._dot_mode = true;
     // used to determine if the cooldown is going on
     this._waiting_for_cooldown = false;
@@ -49,7 +51,7 @@ module.exports = function Player(initial_x, initial_y, starting_points, givenInt
     // old tail point used for linear interpolation
     this._old_tail_point = [initial_x, initial_y];
     // the current slash range of the player
-    this._radius = _defaultRadiusFromPoints(this._points);
+    this._radius = this._radiusFromPoints(this._points);
     // the player's current line head and tail positions
     this._segment = new LineSegment(initial_x, initial_y, initial_x, initial_y);
 };
@@ -63,16 +65,16 @@ function slashTo(to_x, to_y) {
         var distance = math.distance([current_x, current_y], [to_x, to_y]);
         // if the distance is greater than the radius the slash point will be on the circle around the player head.
         if (distance > this._radius) {
-            // make slash point distance match the radius because it will be on the circle
-            distance = this._radius;
-
             var closestPointOnCircle = slashMathUtils.ClosestPointOnCircle(current_x, current_y, to_x, to_y, this._radius, distance);
             to_x = closestPointOnCircle[0];
             to_y = closestPointOnCircle[1];
+
+            // make slash point distance match the radius because it will be on the circle
+            distance = this._radius;
         }
 
-        this._cooldown_required = this._getCooldownTime(distance);
-        this._transition_time_required = this._getTransitionTime(distance);
+        this._cooldown_required = this._getCooldownTime(distance, this._points);
+        this._transition_time_required = this._getTransitionTime(distance, this._points);
 
         // the transition should always finish before or exactly when the cooldown finishes,
         // so if the transition time will take longer than the cooldown set transition to be the cooldown time
@@ -106,7 +108,7 @@ function update(delta) {
     this._time_since_slash += delta;
 
     // if this player is waiting for cooldown check if the updated time surpasses the cooldown time required and update accordingly
-    if (this._waiting_for_cooldown && this._time_since_slash > this._cooldown_required) {
+    if (this._waiting_for_cooldown && this._time_since_slash >= this._cooldown_required) {
         this._waiting_for_cooldown = false;
     }
 
@@ -159,6 +161,14 @@ function getHeadPos() {
 // return first point of the player segment which is the "tail"
 function getTailPos() {
     return this._segment.getPointOne();
+}
+
+function isDot() {
+    return this._dot_mode;
+}
+
+function isCoolingDown() {
+    return this._waiting_for_cooldown;
 }
 
 // Default function for decay given delta and points. Ignores points and always reduces at the same rate.
