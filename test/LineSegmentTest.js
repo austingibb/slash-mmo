@@ -49,7 +49,7 @@ describe("Line Segment", function () {
             var segment_1 = new LineSegment(0, 0, 1, 1);
             var segment_2 = new LineSegment(-0.5, -0.5, 0.5, 0.5);
 
-            expect(segment_1.crossesOther(segment_2)).to.equal(false);
+            expect(segment_1.crossesOther(segment_2)).to.equal(true);
         });
 
         it("Returns True for Vertical Segment Intersection", function () {
@@ -99,20 +99,21 @@ describe("Line Segment", function () {
     describe("Updating and Getting Points", function () {
         it("Can Get Both Points", function () {
             var segment_1 = new LineSegment(0, 1, 2, 3);
-            expect(segment_1.getPointOne()[0]).to.equal(0);
-            expect(segment_1.getPointOne()[1]).to.equal(1);
-            expect(segment_1.getPointTwo()[0]).to.equal(2);
-            expect(segment_1.getPointTwo()[1]).to.equal(3);
+            expect(segment_1.getPointOne().x).to.equal(0);
+            expect(segment_1.getPointOne().y).to.equal(1);
+            expect(segment_1.getPointTwo().x).to.equal(2);
+            expect(segment_1.getPointTwo().y).to.equal(3);
         });
 
         it("Can Update Both Points", function () {
             var segment_1 = new LineSegment(0, 1, 2, 3);
             segment_1.updatePointOne(4, 5);
             segment_1.updatePointTwo(6, 7);
-            expect(segment_1.getPointOne()[0]).to.equal(4);
-            expect(segment_1.getPointOne()[1]).to.equal(5);
-            expect(segment_1.getPointTwo()[0]).to.equal(6);
-            expect(segment_1.getPointTwo()[1]).to.equal(7);
+            console.log(segment_1.getPointOne());
+            expect(segment_1.getPointOne().x).to.equal(4);
+            expect(segment_1.getPointOne().y).to.equal(5);
+            expect(segment_1.getPointTwo().x).to.equal(6);
+            expect(segment_1.getPointTwo().y).to.equal(7);
         });
     });
 });

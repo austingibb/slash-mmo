@@ -16,3 +16,7 @@ module.exports.ClosestPointOnCircle = function ClosestPointOnCircle(circle_x, ci
 
     return [xOnCircle, yOnCircle];
 }
+
+module.exports.segmentCircleColliding = function LineCircleColliding(segment, circle) {
+
+}

@@ -1,51 +1,53 @@
 ﻿var math = require('mathjs');
+var SAT = require('./SAT.js');
 
-module.exports = function LineSegment(x1, y1, x2, y2) {
-    this._point1 = [x1, y1];
-    this._point2 = [x2, y2];
+class LineSegment {
+    constructor(x1, y1, x2, y2) {
+        this._point1 = new SAT.Vector(x1, y1);
+        this._point2 = new SAT.Vector(x2, y2);
 
-    this.updatePointOne = updatePointOne;
-    this.updatePointTwo = updatePointTwo;
-    this.getPointOne = getPointOne;
-    this.getPointTwo = getPointTwo;
+        this._point_diff_vector = this._point2.clone().sub(this._point1);
 
-    this.crossesOther = crossesOther;
-}
-
-function getPointOne() {
-    return this._point1;
-}
-
-function getPointTwo() {
-    return this._point2;
-}
-
-function updatePointOne(x, y) {
-    this._point1[0] = x;
-    this._point1[1] = y;
-}
-
-function updatePointTwo(x, y) {
-    this._point2[0] = x;
-    this._point2[1] = y;
-}
-
-function crossesOther(otherSegment) {
-    // method is likely to need optimization. If the game lags check if any improvements can be made here. 
-    intersectionPoints = math.intersect(this._point1, this._point2, otherSegment._point1, otherSegment._point2);
-    // if the two lines actually intersect
-    if (intersectionPoints != null
-        // the intersecting x is between this segment's x values
-        && math.min(this._point1[0], this._point2[0]) <= intersectionPoints[0] && intersectionPoints[0] <= math.max(this._point1[0], this._point2[0])
-        // the intersecting y is between this segment's y values
-        && math.min(this._point1[1], this._point2[1]) <= intersectionPoints[1] && intersectionPoints[1] <= math.max(this._point1[1], this._point2[1])
-        // the intersecting x is between other segment's x values
-        && math.min(otherSegment._point1[0], otherSegment._point2[0]) <= intersectionPoints[0] && intersectionPoints[0] <= math.max(otherSegment._point1[0], otherSegment._point2[0])
-        // the intersecting y is between other segment's y values
-        && math.min(otherSegment._point1[1], otherSegment._point2[1]) <= intersectionPoints[1] && intersectionPoints[1] <= math.max(otherSegment._point1[1], otherSegment._point2[1])) {
-
-        return true;
+        this._polygon_points = [LineSegment._zero_vector, this._point_diff_vector];
+        this._polygon = new SAT.Polygon(this._point1, this._polygon_points);
     }
 
-    return false;
+    getPointOne() {
+        return this._point1;
+    }
+
+    getPointTwo() {
+        return this._point2;
+    }
+
+    getPolygon() {
+        return this._polygon;
+    }
+
+    updatePointOne(x, y) {
+        console.log(x + ", " + y);
+        this._point1.x = x;
+        this._point1.y = y;
+    }
+
+    updatePointTwo(x, y) {
+        var xdiff = x - this._point2.x;
+        var ydiff = y - this._point2.y;
+
+        this._point_diff_vector.x += xdiff;
+        this._point_diff_vector.y += ydiff;
+
+        this._point2.x = x;
+        this._point2.y = y;
+
+        this._polygon.setPoints(this._polygon_points);
+    }
+
+    crossesOther(otherSegment) {
+        return SAT.testPolygonPolygon(this._polygon, otherSegment._polygon);
+    }
 }
+
+LineSegment._zero_vector = new SAT.Vector(0, 0);
+
+module.exports = LineSegment;
