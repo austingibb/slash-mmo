@@ -1,105 +1,184 @@
-﻿//var expect = require("chai").expect;
-//var lerp = require('lerp');
-//var Player = require("../game/Player.js");
-//var math = require('mathjs');
+﻿var expect = require("chai").expect;
+var lerp = require('lerp');
+var Player = require("../game-server/Player.js");
+var math = require('mathjs');
 
-//describe("Player", function () {
-//    describe("When Slashing To Point", function () {
-//        it("Changes Dot Mode and Cooldown", function () {
-//            var player = new Player(0, 0, 10, lerp, directPointsToRadius, directPointsToCooldownTime, halfPointsToTransitionTime, noDecay);
-//            expect(player.isDot()).to.equal(true);
-//            expect(player.isCoolingDown()).to.equal(false);
+class TestPlayer extends Player {
+    _extendInterpolationFunction(oldVal, newVal, alpha) {
+        return lerp(oldVal, newVal, alpha);
+    }
 
-//            player.slashTo(1, 2);
-//            expect(player.isDot()).to.equal(false);
-//            expect(player.isCoolingDown()).to.equal(true);
+    _recoilInterpolationFunction(oldVal, newVal, alpha) {
+        return lerp(oldVal, newVal, alpha);
+    }
 
-//            player.update(5);
-//            expect(player.isDot()).to.equal(true);
-//            expect(player.isCoolingDown()).to.equal(true);
+    _getDecayPoints(delta, radius, points) {
+        return 0;
+    }
 
-//            player.update(5);
-//            expect(player.isDot()).to.equal(true);
-//            expect(player.isCoolingDown()).to.equal(false);
-//        });
+    _slashRadiusFromPoints(points) {
+        return 20;
+    }
 
-//        it("Changes Head Position", function () {
-//            var player = new Player(0, 0, 10, lerp, directPointsToRadius, directPointsToCooldownTime, halfPointsToTransitionTime, noDecay);
-//            var playerHeadPos = player.getHeadPos();
-//            expect(playerHeadPos[0]).to.equal(0);
-//            expect(playerHeadPos[1]).to.equal(0);
+    _getExtendTransitionTime(radius, points) {
+        return 10;
+    }
 
-//            player.slashTo(1, 2);
-//            playerHeadPos = player.getHeadPos();
-//            expect(playerHeadPos[0]).to.equal(1);
-//            expect(playerHeadPos[1]).to.equal(2);
-//        });
+    _getRecoilTransitionTime(radius, points) {
+        return 10;
+    }
 
-//        it("Changes Head Position onto Circle when Point is Outside Radius", function () {
-//            var player = new Player(0, 0, 1, lerp, directPointsToRadius, directPointsToCooldownTime, halfPointsToTransitionTime, noDecay);
-//            var playerHeadPos = player.getHeadPos();
-//            expect(playerHeadPos[0]).to.equal(0);
-//            expect(playerHeadPos[1]).to.equal(0);
+    _getExtendedTime(radius, points) {
+        return 10;
+    }
 
-//            player.slashTo(2, 2);
-//            playerHeadPos = player.getHeadPos();
-//            expect(playerHeadPos[0]).be.closeTo(math.sqrt(2) / 2, 0.0001);
-//            expect(playerHeadPos[1]).be.closeTo(math.sqrt(2) / 2, 0.0001);
-//        });
+    _getCooldownTime(radius, points) {
+        return 10;
+    }
+}
 
-//        it("Requires Transition Time to be Less Than Cooldwon Time", function () {
-//            var player = new Player(0, 0, 10, lerp, directPointsToRadius, directPointsToCooldownTime, doublePointsToTransitionTime, noDecay);
-//            expect(player.isDot()).to.equal(true);
-//            expect(player.isCoolingDown()).to.equal(false);
+describe("Player", function () {
+    describe("When Slashing To Point", function () {
+        it("Goes Through All Four States Correctly", function () {
+            var player = new TestPlayer(0, 0, 0, 5);
 
-//            player.slashTo(1, 2);
-//            expect(player.isDot()).to.equal(false);
-//            expect(player.isCoolingDown()).to.equal(true);
+            player.slashTo(5, 10);
 
-//            player.update(10);
-//            expect(player.isDot()).to.equal(true);
-//            expect(player.isCoolingDown()).to.equal(false);
-//        });
+            player.update(2);
+            expect(player._state).to.equal(Player.State.EXTENDING);
+            expect(player._segment.getPointOne().x).be.equal(0);
+            expect(player._segment.getPointOne().y).be.equal(0);
+            expect(player._segment.getPointTwo().x).be.closeTo(1, 0.001);
+            expect(player._segment.getPointTwo().y).be.closeTo(2, 0.001);
 
-//        it("Interpolates to Head Linearly With Lerp", function () {
-//            var player = new Player(0, 0, 10, lerp, directPointsToRadius, directPointsToCooldownTime, halfPointsToTransitionTime, noDecay);
-//            // slash transition should take 5ms because transition time is half points and points start at 10
-//            player.slashTo(1, 2);
-//            var playerTailPos = player.getTailPos();
-//            expect(playerTailPos[0]).to.equal(0);
-//            expect(playerTailPos[1]).to.equal(0);
+            player.update(3);
+            expect(player._state).to.equal(Player.State.EXTENDING);
+            expect(player._segment.getPointOne().x).be.equal(0);
+            expect(player._segment.getPointOne().y).be.equal(0);
+            expect(player._segment.getPointTwo().x).be.closeTo(2.5, 0.001);
+            expect(player._segment.getPointTwo().y).be.closeTo(5, 0.001);
 
-//            player.update(1);
-//            expect(playerTailPos[0]).be.closeTo(1 / 5, 0.0001);
-//            expect(playerTailPos[1]).be.closeTo(2 / 5, 0.0001);
+            player.update(5);
+            expect(player._state).to.equal(Player.State.EXTENDED);
+            expect(player._segment.getPointOne().x).be.equal(0);
+            expect(player._segment.getPointOne().y).be.equal(0);
+            expect(player._segment.getPointTwo().x).be.equal(5);
+            expect(player._segment.getPointTwo().y).be.equal(10);
 
-//            player.update(3);
-//            expect(playerTailPos[0]).be.closeTo(4 / 5, 0.0001);
-//            expect(playerTailPos[1]).be.closeTo(8 / 5, 0.0001);
+            player.update(5);
+            expect(player._state).to.equal(Player.State.EXTENDED);
+            expect(player._segment.getPointOne().x).be.equal(0);
+            expect(player._segment.getPointOne().y).be.equal(0);
+            expect(player._segment.getPointTwo().x).be.equal(5);
+            expect(player._segment.getPointTwo().y).be.equal(10);
 
-//            player.update(3);
-//            expect(playerTailPos[0]).be.closeTo(1, 0.0001);
-//            expect(playerTailPos[1]).be.closeTo(2, 0.0001);
-//        });
-//    });
-//});
+            player.update(5);
+            expect(player._state).to.equal(Player.State.RECOILING);
+            expect(player._segment.getPointOne().x).be.equal(0);
+            expect(player._segment.getPointOne().y).be.equal(0);
+            expect(player._segment.getPointTwo().x).be.equal(5);
+            expect(player._segment.getPointTwo().y).be.equal(10);
 
-//function directPointsToRadius(points) {
-//    return points;
-//}
+            player.update(2);
+            expect(player._state).to.equal(Player.State.RECOILING);
+            expect(player._segment.getPointOne().x).be.closeTo(1, 0.001);
+            expect(player._segment.getPointOne().y).be.closeTo(2, 0.001);
+            expect(player._segment.getPointTwo().x).be.equal(5);
+            expect(player._segment.getPointTwo().y).be.equal(10);
 
-//function directPointsToCooldownTime(radius, points) {
-//    return points;
-//}
+            player.update(3);
+            expect(player._state).to.equal(Player.State.RECOILING);
+            expect(player._segment.getPointOne().x).be.closeTo(2.5, 0.001);
+            expect(player._segment.getPointOne().y).be.closeTo(5, 0.001);
+            expect(player._segment.getPointTwo().x).be.equal(5);
+            expect(player._segment.getPointTwo().y).be.equal(10);
 
-//function halfPointsToTransitionTime(radius, points) {
-//    return points / 2;
-//}
+            player.update(5);
+            expect(player._state).to.equal(Player.State.COOLDOWN);
+            expect(player._segment.getPointOne().x).be.equal(5);
+            expect(player._segment.getPointOne().y).be.equal(10);
+            expect(player._segment.getPointTwo().x).be.equal(5);
+            expect(player._segment.getPointTwo().y).be.equal(10);
 
-//function doublePointsToTransitionTime(radius, points) {
-//    return points * 2;
-//}
+            player.update(5);
+            expect(player._state).to.equal(Player.State.COOLDOWN);
+            expect(player._segment.getPointOne().x).be.equal(5);
+            expect(player._segment.getPointOne().y).be.equal(10);
+            expect(player._segment.getPointTwo().x).be.equal(5);
+            expect(player._segment.getPointTwo().y).be.equal(10);
 
-//function noDecay(delta, radius, points) {
-//    return 0;
-//}
+            player.update(5);
+            expect(player._state).to.equal(Player.State.IDLE);
+            expect(player._segment.getPointOne().x).be.equal(5);
+            expect(player._segment.getPointOne().y).be.equal(10);
+            expect(player._segment.getPointTwo().x).be.equal(5);
+            expect(player._segment.getPointTwo().y).be.equal(10);
+        });
+
+        it("Can Limit the Slash to the Slash Radius", function () {
+            var player = new TestPlayer(0, 0, 0, 5);
+
+            player.slashTo(21, 21);
+
+            player.update(5);
+            expect(player._segment.getPointOne().x).be.equal(0);
+            expect(player._segment.getPointOne().y).be.equal(0);
+            expect(player._segment.getPointTwo().x).be.closeTo(math.sqrt(2) * 5, 0.001);
+            expect(player._segment.getPointTwo().y).be.closeTo(math.sqrt(2) * 5, 0.001);
+
+            player.update(5);
+            expect(player._segment.getPointOne().x).be.equal(0);
+            expect(player._segment.getPointOne().y).be.equal(0);
+            expect(player._segment.getPointTwo().x).be.closeTo(math.sqrt(2) * 10, 0.001);
+            expect(player._segment.getPointTwo().y).be.closeTo(math.sqrt(2) * 10, 0.001);
+        });
+    });
+
+    describe("when deciding who wins encounter", function () {
+        it("can resolve both extending into each other first wins", function () {
+            var player1 = new TestPlayer(0, -2, -2, 5);
+            var player2 = new TestPlayer(1, 2, 0, 5);
+
+            player1.slashTo(3, 3);
+            player1.update(5);
+
+            player2.slashTo(2, 10);
+            player1.update(4);
+            player2.update(4);
+
+            var result = player1.winsEncounter(player2);
+            expect(result).to.equal(true);
+        });
+
+        it("can resolve both extending into each other second wins", function () {
+            var player1 = new TestPlayer(0, 0, 0, 5);
+            var player2 = new TestPlayer(1, 2, 0, 5);
+
+            player1.slashTo(3, 3);
+            player1.update(5);
+
+            player2.slashTo(2, 10);
+            player1.update(4);
+            player2.update(4);
+
+            var result = player1.winsEncounter(player2);
+            expect(result).to.equal(false);
+        });
+
+        it("can resolve both extending, but one is beyond intersection point", function () {
+            var player1 = new TestPlayer(0, -2, -2, 5);
+            var player2 = new TestPlayer(1, 2, 0, 5);
+
+            player1.slashTo(3, 3);
+            player2.slashTo(2, 20);
+            player1.update(5);
+            player2.update(5);
+
+            player1.update(4);
+            player2.update(4);
+
+            var result = player1.winsEncounter(player2);
+            expect(result).to.equal(true);
+        });
+    });
+});

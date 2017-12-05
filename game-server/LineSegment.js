@@ -25,26 +25,29 @@ class LineSegment {
     }
 
     updatePointOne(x, y) {
-        console.log(x + ", " + y);
         this._point1.x = x;
         this._point1.y = y;
+
+        this._updatePolygonPoints();
     }
 
     updatePointTwo(x, y) {
-        var xdiff = x - this._point2.x;
-        var ydiff = y - this._point2.y;
-
-        this._point_diff_vector.x += xdiff;
-        this._point_diff_vector.y += ydiff;
-
         this._point2.x = x;
         this._point2.y = y;
 
-        this._polygon.setPoints(this._polygon_points);
+        this._updatePolygonPoints();
     }
 
     crossesOther(otherSegment) {
-        return SAT.testPolygonPolygon(this._polygon, otherSegment._polygon);
+        var res = SAT.testPolygonPolygon(this._polygon, otherSegment._polygon);
+        return res;
+    }
+
+    _updatePolygonPoints() {
+        this._point_diff_vector.x = this._point2.x - this._point1.x;
+        this._point_diff_vector.y = this._point2.y - this._point1.y;
+
+        this._polygon.setPoints(this._polygon_points);
     }
 }
 

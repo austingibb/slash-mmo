@@ -17,31 +17,35 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
-    <Content Include="client.html" />
+    <Compile Include="client\client.js">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="client\socket.io\2.0.4\socket.io.js" />
+    <Compile Include="game-server\Food.js" />
+    <Compile Include="game-server\GameLoop.js" />
+    <Compile Include="game-server\LineSegment.js" />
+    <Compile Include="game-server\Player.js" />
+    <Compile Include="game-server\SAT.js" />
+    <Compile Include="game-server\SlashMathUtils.js" />
+    <Compile Include="game-server\World.js" />
+    <Compile Include="test\WorldTest.js">
+      <SubType>Code</SubType>
+    </Compile>
+    <Content Include="client\client.html" />
     <Content Include="config.json" />
     <Content Include="package-lock.json" />
     <Content Include="package.json" />
     <Content Include="README.md" />
     <Compile Include="app.js" />
-    <Compile Include="game\Food.js">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="game\GameLoop.js" />
-    <Compile Include="game\LineSegment.js" />
-    <Compile Include="game\Player.js" />
-    <Compile Include="game\SAT.js">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="game\SlashMathUtils.js" />
-    <Compile Include="game\World.js">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="test\LineSegmentTest.js" />
     <Compile Include="test\PlayerTest.js" />
     <Compile Include="test\SlashMathUtilsTest.js" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="game" />
+    <Folder Include="client\" />
+    <Folder Include="client\socket.io\" />
+    <Folder Include="client\socket.io\2.0.4\" />
+    <Folder Include="game-server\" />
     <Folder Include="slash-mmo-vs" />
     <Folder Include="slash-mmo-vs\slash-mmo-vs" />
     <Folder Include="test" />

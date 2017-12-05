@@ -1,5 +1,5 @@
 var expect = require("chai").expect;
-var LineSegment = require("../game/LineSegment.js");
+var LineSegment = require("../game-server/LineSegment.js");
 
 describe("Line Segment", function () {
     describe("Determining Segment Intersection", function () {
@@ -109,7 +109,6 @@ describe("Line Segment", function () {
             var segment_1 = new LineSegment(0, 1, 2, 3);
             segment_1.updatePointOne(4, 5);
             segment_1.updatePointTwo(6, 7);
-            console.log(segment_1.getPointOne());
             expect(segment_1.getPointOne().x).to.equal(4);
             expect(segment_1.getPointOne().y).to.equal(5);
             expect(segment_1.getPointTwo().x).to.equal(6);

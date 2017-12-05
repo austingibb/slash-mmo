@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Slash Game</title>
+</head>
+
+<!--<script src="require/2.3.5/require.js"></script>-->
+<!--<script src="socket.io/2.0.4/socket.io.js"></script>-->
+<script src="http://localhost:42069/socket.io/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+
+<body>
+    <canvas id="game-canvas" onclick="canvasClicked(event)"></canvas>
+</body>
+
+<script>
+    var canvas_upscale = 20;
+
+    var canvas = document.getElementById('game-canvas');
+    var ctx = canvas.getContext('2d');
+
+    var players = {};
+    var food_list = {};
+
+    var socket = io("http://localhost:42069");
+    var client_id;
+    socket.on('setupInfo', function (setup_object) {
+        client_id = setup_object.client_id;
+        canvas.width = setup_object.world_width * canvas_upscale;
+        canvas.height = setup_object.world_height * canvas_upscale;
+    });
+
+    socket.on('worldRepresentation', function (world_representation) {
+        for (var player_id in world_representation.player_list) {
+            addOrUpdatePlayer(world_representation.player_list[player_id]);
+        }
+
+        for (var food_id in world_representation.food_list) {
+            addOrUpdateFood(world_representation.food_list[food_id]);
+        }
+
+        drawAll();
+    });
+
+    function drawAll() {
+        var canvas = document.getElementById('game-canvas');
+        if (canvas.getContext) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (var player_id in players) {
+                var player = players[player_id];
+                drawCircle(ctx, toCanvasCoord(player.tail_x), toCanvasCoord(player.tail_y), 5);
+                drawCircle(ctx, toCanvasCoord(player.head_x), toCanvasCoord(player.head_y), 5);
+                ctx.beginPath();
+                ctx.moveTo(toCanvasCoord(player.tail_x), toCanvasCoord(player.tail_y));
+                ctx.lineTo(toCanvasCoord(player.head_x), toCanvasCoord(player.head_y));
+                ctx.stroke();
+
+                drawCircle(ctx, toCanvasCoord(player.head_x), toCanvasCoord(player.head_y), toCanvasCoord(player.slash_radius));
+            }
+
+            for (var food_id in food_list) {
+                var food = food_list[food_id];
+                drawCircle(ctx, toCanvasCoord(food.x), toCanvasCoord(food.y), toCanvasCoord(food.radius));
+            }
+        }
+    }
+
+    function drawCircle(ctx, x, y, r) {
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, 2 * Math.PI);
+        ctx.stroke();
+    }
+
+    function addOrUpdateFood(food_representation) {
+        var food;
+        if (food_list[food_representation.id]) {
+            food = food_list[food_representation.id];
+        }
+        else {
+            food = {};
+        }
+
+        for (var attrname in food_representation) { food[attrname] = food_representation[attrname] }
+
+        food_list[food_representation.id] = food;
+    }
+
+    function addOrUpdatePlayer(player_representation) {
+        var player;
+        if (players[player_representation.id]) {
+            player = players[player_representation.id];
+        }
+        else {
+            player = {};
+        }
+
+        for (var attrname in player_representation) { player[attrname] = player_representation[attrname] }
+
+        players[player_representation.id] = player;
+    }
+
+    function toCanvasCoord(coord) {
+        return canvas_upscale * coord;
+    }
+
+    function toWorldCoord(coord) {
+        return coord / canvas_upscale;
+    }
+
+    function canvasClicked(event) {
+        var click_x = event.offsetX;
+        var click_y = event.offsetY;
+        var position = {};
+        position.x = toWorldCoord(click_x);
+        position.y = toWorldCoord(click_y);
+        socket.emit('slashto', position);
+    }
+</script>
+
+</html>

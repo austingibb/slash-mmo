@@ -1,6 +1,6 @@
 ﻿var math = require('mathjs');
 
-module.exports.ClosestPointOnCircle = function ClosestPointOnCircle(circle_x, circle_y, point_x, point_y, radius, distance) {
+module.exports.closestPointOnCircle = function closestPointOnCircle(circle_x, circle_y, point_x, point_y, radius, distance) {
     if (distance == undefined) {
         distance = math.distance([circle_x, circle_y], [point_x, point_y]);
     }
@@ -17,6 +17,18 @@ module.exports.ClosestPointOnCircle = function ClosestPointOnCircle(circle_x, ci
     return [xOnCircle, yOnCircle];
 }
 
-module.exports.segmentCircleColliding = function LineCircleColliding(segment, circle) {
+module.exports.pointInRect = function pointInRect(x, y, rect_x1, rect_y1, rect_x2, rect_y2) {
+    var tmp = rect_x1;
+    rect_x1 = math.min(rect_x1, rect_x2);
+    rect_x2 = math.max(tmp, rect_x2);
 
+    tmp = rect_y1;
+    rect_y1 = math.min(rect_y1, rect_y2);
+    rect_y2 = math.max(tmp, rect_y2);
+
+    return (rect_x1 <= x && x <= rect_x2 && rect_y1 <= y && y <= rect_y2);
+}
+
+module.exports.randomRange = function randomRange(min, max) {
+    return math.random() * (max - min) + min;
 }

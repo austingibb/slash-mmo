@@ -1,28 +1,30 @@
 {
-  "name": "slash-mmo",
-  "version": "1.0.0",
-  "description": "Slash yo friends. Rise to the top.",
-  "main": "index.js",
-  "scripts": {
-    "test": "./node_modules/.bin/mocha --reporter spec"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/austingibb/slash-mmo.git"
-  },
-  "author": "Austin Gibbons",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/austingibb/slash-mmo/issues"
-  },
-  "homepage": "https://github.com/austingibb/slash-mmo#readme",
-  "dependencies": {
-    "chai": "^4.1.2",
-    "express": "^4.16.2",
-    "lerp": "^1.0.3",
-    "mathjs": "^3.17.0",
-    "mocha": "^4.0.1",
-    "node-gameloop": "^0.1.4",
-    "socket.io": "^2.0.4"
-  }
+    "name": "slash-mmo",
+    "version": "1.0.0",
+    "description": "Slash yo friends. Rise to the top.",
+    "main": "index.js",
+    "scripts": {
+        "start": "app.js",
+        "test": "./node_modules/.bin/mocha --reporter spec"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/austingibb/slash-mmo.git"
+    },
+    "author": "Austin Gibbons",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/austingibb/slash-mmo/issues"
+    },
+    "homepage": "https://github.com/austingibb/slash-mmo#readme",
+    "dependencies": {
+        "chai": "^4.1.2",
+        "express": "^4.16.2",
+        "lerp": "^1.0.3",
+        "mathjs": "^3.17.0",
+        "mocha": "^4.0.1",
+        "node-gameloop": "^0.1.4",
+        "quadtree-lib": "^1.0.9",
+        "socket.io": "^2.0.4"
+    }
 }
