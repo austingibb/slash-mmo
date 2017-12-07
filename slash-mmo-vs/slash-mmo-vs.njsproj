@@ -32,6 +32,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Content Include="client\client.html" />
+    <Content Include="client\TestSmoothConnectedDrops.html">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="config.json" />
     <Content Include="package-lock.json" />
     <Content Include="package.json" />

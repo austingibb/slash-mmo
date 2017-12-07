@@ -6,8 +6,8 @@ server.listen(42069);
 
 var World = require('./World.js');
 
-const world_width = 40;
-const world_height = 40;
+const world_width = 80;
+const world_height = 80;
 
 var world = new World(world_width, world_height, 120);
 
@@ -27,6 +27,11 @@ io.on('connection', function (socket) {
     socket.on('slashto', function (position) {
         world.playerSlash(client_id, position.x, position.y);
     });
+
+    socket.on('disconnect', function () {
+        world.clearPlayer(client_id);
+        io.emit('removePlayer', client_id);
+    });
 });
 
 module.exports.startGame = function startGame(msPerFrame) {
@@ -44,6 +49,12 @@ delta_array.fill(0);
 
 function gameLoop(delta) {
     world.update(delta);
+
+    var food_ids = world.getEatenFood();
+
+    if (food_ids) {
+        io.emit('removeFood', food_ids);
+    }
 
     io.emit('worldRepresentation', world.toClientRepresentation());
 

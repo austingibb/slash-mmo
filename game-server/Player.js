@@ -22,14 +22,6 @@ class Player {
             player: this
         }
 
-        this._view_port = {
-            x: 0,
-            y: 0,
-            width: 0, 
-            height: 0,
-            view_port_player: this
-        }
-
         // old tail point used for linear interpolation
         this._old_tail_point = new SAT.Vector();
         // the point to extend to
@@ -301,12 +293,20 @@ class Player {
         return this._segment.getPointOne();
     }
 
+    getPoints() {
+        return this._points;
+    }
+
     getState() {
         return this._state;
     }
 
     getId() {
         return this._id;
+    }
+
+    getTimeInState() {
+        return this._time_in_state;
     }
 
     _recalculateQuadTreeObject() {
@@ -334,12 +334,12 @@ class Player {
             return 0;
         }
 
-        return delta / 20;
+        return delta / 6;
     }
 
     // converts the points to the desired radius (allowable slash area) 
     _slashRadiusFromPoints(points) {
-        return points;
+        return math.sqrt(points);
     }
 
     // provides the default cooldown time given the radius of a slash
@@ -349,11 +349,11 @@ class Player {
 
     // provides the default for how long it will take for the head to shoot out for slash
     _getExtendTransitionTime(radius, points) {
-        return 2;
+        return .3;
     }
 
     _getRecoilTransitionTime(radius, points) {
-        return radius / 30;
+        return .1;
     }
 
     // provides the default for how long the player will sit between extend and recoil transitions

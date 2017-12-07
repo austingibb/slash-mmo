@@ -8,6 +8,7 @@ class World {
     constructor(world_width, world_height, food_max) {
         this._players = {};
         this._food = {};
+        this._eaten_food = [];
         this._food_max = food_max;
         this._food_count = 0;
         this._food_id = 0;
@@ -23,8 +24,10 @@ class World {
     }
 
     playerSlash(playerId, x, y) {
-        var player = this._players[playerId];
-        player.slashTo(x, y);
+        if (SlashMathUtils.pointInRect(x, y, 0, 0, this._world_width, this._world_height)) {
+            var player = this._players[playerId];
+            player.slashTo(x, y);
+        }
     }
 
     addPlayer(id) {
@@ -35,12 +38,30 @@ class World {
         }
     }
 
+    clearPlayer(id) {
+        if (this._players[id]) {
+            this._quad_tree.remove(this._players[id].getQuadTreeObject());
+            delete this._players[id];
+        }
+    }
+
     clearFood(id) {
         if (this._food[id]) {
             this._quad_tree.remove(this._food[id].getQuadTreeObject());
             delete this._food[id];
             this._food_count--;
+            this._eaten_food.push(id);
         }
+    }
+
+    getEatenFood() {
+        var copied_food_eaten_array;
+        if (this._eaten_food.length > 0) {
+            copied_food_eaten_array = this._eaten_food.slice();
+            this._eaten_food.length = 0;
+        }
+
+        return copied_food_eaten_array;
     }
 
     _maintainFoodMax() {
@@ -56,36 +77,47 @@ class World {
 
     update(delta) {
         for (var playerId in this._players) {
-            this._players[playerId].update(delta);
+            var player = this._players[playerId];
+            player.update(delta);
+
+            if (player.getState() == Player.State.DEAD && player.getTimeInState() > World.DEAD_TIME) {
+                player.initialize(this._world_width * Math.random(), this._world_height * Math.random(), World.STARTING_POINTS);
+            }
         }
 
         for (var playerId in this._players) {
             var player = this._players[playerId];
-            if (player.getState() != Player.State.DEAD) {
-                var colliding = this._quad_tree.colliding(player.getQuadTreeObject());
-                colliding.forEach(function (otherQuadTreeObject) {
-                    if (otherQuadTreeObject.player) {
-                        var otherPlayer = otherQuadTreeObject.player;
-                        if (player.crossesOther(otherPlayer)) {
-                            if (player.getState() != Player.State.DEAD) {
-                                if (player.winsEncounter(otherPlayer)) {
-                                    otherPlayer.die();
-                                }
-                                else {
-                                    player.die();
-                                }
-                            }
-                        }
-                    }
-                    else if (otherQuadTreeObject.food) {
-                        var food = otherQuadTreeObject.food;
-                        if (SAT.testPolygonCircle(player.getPolygon(), food.getCircle())) {
-                            player.feed(food.getMass() * World.FOOD_VALUE);
-                            this.clearFood(food.getId());
-                        }
-                    }
-                }, this);
+            if (player.getState() == Player.State.DEAD) {
+                continue;
             }
+
+            var colliding = this._quad_tree.colliding(player.getQuadTreeObject());
+            colliding.forEach(function (otherQuadTreeObject) {
+                if (otherQuadTreeObject.player) {
+                    var otherPlayer = otherQuadTreeObject.player;
+                    if (otherPlayer.getState() == Player.State.DEAD) {
+                        return;
+                    }
+
+                    if (player.crossesOther(otherPlayer)) {
+                        if (player.winsEncounter(otherPlayer)) {
+                            otherPlayer.die();
+                            console.log(otherPlayer.getId() + " died ");
+                        }
+                        else {
+                            player.die();
+                            console.log(player.getId() + " died ");
+                        }
+                    }
+                }
+                else if (otherQuadTreeObject.food) {
+                    var food = otherQuadTreeObject.food;
+                    if (SAT.testPolygonCircle(player.getPolygon(), food.getCircle())) {
+                        player.feed(food.getMass() * World.FOOD_VALUE);
+                        this.clearFood(food.getId());
+                    }
+                }
+            }, this);
         }
 
         this._maintainFoodMax();
@@ -108,6 +140,7 @@ class World {
         for (var playerId in this._players) {
             var player = this._players[playerId];
             var player_representation = {};
+            player_representation.points = player.getPoints();
             player_representation.id = player.getId();
             player_representation.tail_x = player.getTailPos().x;
             player_representation.tail_y = player.getTailPos().y;
@@ -126,5 +159,6 @@ World.STARTING_POINTS = 10;
 World.MINIMUM_FOOD_MASS = 0.5;
 World.MAXIMUM_FOOD_MASS = 1;
 World.FOOD_VALUE = 2;
+World.DEAD_TIME = 3;
 
 module.exports = World;

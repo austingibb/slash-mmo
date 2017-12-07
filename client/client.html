@@ -9,26 +9,36 @@
 <!--<script src="socket.io/2.0.4/socket.io.js"></script>-->
 <script src="http://localhost:42069/socket.io/socket.io.js"></script>
 <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.16/p5.js"></script>
 
 <body>
     <canvas id="game-canvas" onclick="canvasClicked(event)"></canvas>
 </body>
 
 <script>
-    var canvas_upscale = 20;
-
+    var view_port_scalar = 1.6;
+    var canvas_width = 1300;
     var canvas = document.getElementById('game-canvas');
+    canvas.width = canvas_width;
+    canvas.height = canvas_width;
     var ctx = canvas.getContext('2d');
+    ctx.font = '20px serif';
 
     var players = {};
     var food_list = {};
 
     var socket = io("http://localhost:42069");
-    var client_id;
+    var client_id = -1;
+    var world_width = 0;
+    var world_height = 0;
     socket.on('setupInfo', function (setup_object) {
+        players = {};
+        food_list = {};
+
         client_id = setup_object.client_id;
-        canvas.width = setup_object.world_width * canvas_upscale;
-        canvas.height = setup_object.world_height * canvas_upscale;
+        world_width = setup_object.world_width;
+        world_height = setup_object.world_height;
+        console.log(client_id);
     });
 
     socket.on('worldRepresentation', function (world_representation) {
@@ -40,7 +50,23 @@
             addOrUpdateFood(world_representation.food_list[food_id]);
         }
 
-        drawAll();
+        if (players[client_id]) {
+            drawAll();
+        }
+    });
+
+    socket.on('removePlayer', function (playerId) {
+        if (players[playerId]) {
+            delete players[playerId];
+        }
+    });
+
+    socket.on('removeFood', function (food_ids) {
+        food_ids.forEach(function (food_id) {
+            if (food_list[food_id]) {
+                delete food_list[food_id];
+            }
+        });
     });
 
     function drawAll() {
@@ -50,19 +76,32 @@
 
             for (var player_id in players) {
                 var player = players[player_id];
-                drawCircle(ctx, toCanvasCoord(player.tail_x), toCanvasCoord(player.tail_y), 5);
-                drawCircle(ctx, toCanvasCoord(player.head_x), toCanvasCoord(player.head_y), 5);
-                ctx.beginPath();
-                ctx.moveTo(toCanvasCoord(player.tail_x), toCanvasCoord(player.tail_y));
-                ctx.lineTo(toCanvasCoord(player.head_x), toCanvasCoord(player.head_y));
-                ctx.stroke();
+                if (player.state < 5) {
+                    drawCircle(ctx, toCanvasCoordX(player.tail_x), toCanvasCoordY(player.tail_y), 5);
+                    drawCircle(ctx, toCanvasCoordX(player.head_x), toCanvasCoordY(player.head_y), 5);
+                    ctx.beginPath();
+                    ctx.moveTo(toCanvasCoordX(player.tail_x), toCanvasCoordY(player.tail_y));
+                    ctx.lineTo(toCanvasCoordX(player.head_x), toCanvasCoordY(player.head_y));
+                    ctx.stroke();
 
-                drawCircle(ctx, toCanvasCoord(player.head_x), toCanvasCoord(player.head_y), toCanvasCoord(player.slash_radius));
+                    drawCircle(ctx, toCanvasCoordX(player.head_x), toCanvasCoordY(player.head_y), getPixelsPerWorldUnit() * player.slash_radius);
+                }
             }
 
             for (var food_id in food_list) {
                 var food = food_list[food_id];
-                drawCircle(ctx, toCanvasCoord(food.x), toCanvasCoord(food.y), toCanvasCoord(food.radius));
+                drawCircle(ctx, toCanvasCoordX(food.x), toCanvasCoordY(food.y), getPixelsPerWorldUnit() * food.radius);
+            }
+
+            var x1 = toCanvasCoordX(0);
+            var y1 = toCanvasCoordY(0);
+            var x2 = toCanvasCoordX(world_width);
+            var y2 = toCanvasCoordY(world_height);
+            ctx.rect(x1, y1, x2 - x1, y2 - y1);
+            ctx.stroke();
+
+            if (players[client_id]) {
+                ctx.fillText("Player pos: (" + players[client_id].head_x + ", " + players[client_id].head_y + ")", 20, 20);
             }
         }
     }
@@ -101,20 +140,50 @@
         players[player_representation.id] = player;
     }
 
-    function toCanvasCoord(coord) {
-        return canvas_upscale * coord;
+    function toCanvasCoordX(world_x) {
+        var player = players[client_id];
+        var view_port_width = 2 * player.slash_radius * view_port_scalar;
+        var player_relative_world_x = world_x - player.head_x + view_port_width / 2;
+        var pixels_per_world_unit = canvas_width / view_port_width;
+        return pixels_per_world_unit * player_relative_world_x;
     }
 
-    function toWorldCoord(coord) {
-        return coord / canvas_upscale;
+    function toCanvasCoordY(world_y) {
+        var player = players[client_id];
+        var view_port_width = 2 * player.slash_radius * view_port_scalar;
+        var player_relative_world_y = world_y - player.head_y + view_port_width / 2;
+        var pixels_per_world_unit = canvas_width / view_port_width;
+        return pixels_per_world_unit * player_relative_world_y;
+    }
+
+    function getPixelsPerWorldUnit() {
+        var player = players[client_id];
+        var view_port_width = 2 * player.slash_radius * view_port_scalar;
+        return canvas_width / view_port_width;
+    }
+
+    function toWorldCoordX(canvas_x) {
+        var player = players[client_id];
+        var view_port_width = 2 * player.slash_radius * view_port_scalar;
+        var pixels_per_world_unit = canvas_width / view_port_width;
+        var player_relative_world_x = canvas_x / pixels_per_world_unit;
+        return player_relative_world_x + player.head_x - view_port_width / 2;
+    }
+
+    function toWorldCoordY(canvas_y) {
+        var player = players[client_id];
+        var view_port_width = 2 * player.slash_radius * view_port_scalar;
+        var pixels_per_world_unit = canvas_width / view_port_width;
+        var player_relative_world_y = canvas_y / pixels_per_world_unit;
+        return player_relative_world_y + player.head_y - view_port_width / 2;
     }
 
     function canvasClicked(event) {
         var click_x = event.offsetX;
         var click_y = event.offsetY;
         var position = {};
-        position.x = toWorldCoord(click_x);
-        position.y = toWorldCoord(click_y);
+        position.x = toWorldCoordX(click_x);
+        position.y = toWorldCoordY(click_y);
         socket.emit('slashto', position);
     }
 </script>
