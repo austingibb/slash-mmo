@@ -384,7 +384,7 @@ class Player {
 
     // converts the points to the desired radius (allowable slash area) 
     _slashRadiusFromPoints(points) {
-        return math.sqrt(points);
+        return 5 + 0.1 * math.sqrt(points);
     }
 
     // provides the default cooldown time given the radius of a slash
@@ -394,24 +394,24 @@ class Player {
 
     // provides the default for how long it will take for the head to shoot out for slash
     _getExtendTransitionTime(radius, points) {
-        return .3;
+        return .05 + radius / 30;
     }
 
     _getRecoilTransitionTime(radius, points) {
-        return .1;
+        return .1 + radius / 20;
     }
 
     // provides the default for how long the player will sit between extend and recoil transitions
     _getExtendedTime(radius, points) {
-        return 0;
+        return .05;
     }
 
     _getMaximumVulnerableRadius(radius, points) {
-        return radius / 5;
+        return radius / 15;
     }
 
     _getMinimumVulnerableRadius(radius, points) {
-        return radius / 10;
+        return radius / 30;
     }
 }
 

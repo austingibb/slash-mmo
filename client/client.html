@@ -1104,9 +1104,12 @@
     var food_colors = ["#011f4b", "#03396c", "#005b96", "#6497b1", "#b3cde0"];
     var player_colors = ["#966842", "#f44747", "#eedc31", "#7fdb6a"];
 
-    var view_port_width = 15;
-    var view_port_width_min = 15;
-    var view_port_width_max = 40;
+    var mouse_pos;
+    var pixel_vector = new Vector(0, 0);
+
+    var view_port_width = 5;
+    var view_port_width_min = 5;
+    var view_port_width_max = 30;
     var canvas_width = 1300;
     var canvas = document.getElementById('game-canvas');
     canvas.width = canvas_width;
@@ -1167,6 +1170,7 @@
 
         if (canvas.getContext) {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            var ppwu = getPixelsPerWorldUnit();
 
             var x1 = toCanvasCoordX(0);
             var y1 = toCanvasCoordY(0);
@@ -1195,7 +1199,6 @@
 
                     var point_one = new Vector(toCanvasCoordX(player.tail_x), toCanvasCoordY(player.tail_y));
                     var point_two = new Vector(toCanvasCoordX(player.head_x), toCanvasCoordY(player.head_y));
-                    var ppwu = getPixelsPerWorldUnit();
                     var radius_one = ppwu * player.tail_radius;
                     var radius_two = ppwu * player.head_radius;
                     drawConnectedCircles(point_one, point_two, radius_one, radius_two, player_colors[player_id % player_colors.length]);
@@ -1207,6 +1210,29 @@
             if (players[client_id]) {
                 ctx.fillText("Player pos: (" + players[client_id].head_x + ", " + players[client_id].head_y + ")", 20, 20);
                 ctx.fillText("Points: " + players[client_id].points, 20, 40);
+
+                if (mouse_pos && players[client_id].state == 4) {
+                    var player_slash_radius = players[client_id].slash_radius;
+                    var x_mouse_dist_from_center = mouse_pos.x - canvas_width / 2;
+                    var y_mouse_dist_from_center = mouse_pos.y - canvas_width / 2;
+                    var world_distance = Math.sqrt(Math.pow(x_mouse_dist_from_center, 2) + Math.pow(y_mouse_dist_from_center, 2)) / ppwu;
+                    pixel_vector.x = x_mouse_dist_from_center;
+                    pixel_vector.y = y_mouse_dist_from_center;
+                    pixel_vector.normalize();
+                    if (world_distance > player_slash_radius) {
+                        world_distance = player_slash_radius;
+                    }
+
+                    pixel_vector.mult(world_distance);
+                    pixel_vector.mult(ppwu);
+                    pixel_vector.x += canvas_width / 2;
+                    pixel_vector.y += canvas_width / 2;
+
+                    ctx.beginPath();
+                    ctx.moveTo(canvas_width / 2, canvas_width / 2);
+                    ctx.lineTo(pixel_vector.x, pixel_vector.y);
+                    ctx.stroke();
+                }
             }
         }
     }
@@ -1293,6 +1319,18 @@
         position.y = toWorldCoordY(click_y);
         socket.emit('slashto', position);
     }
+
+    function getMousePos(canvas, evt) {
+        var rect = canvas.getBoundingClientRect();
+        return {
+            x: evt.clientX - rect.left,
+            y: evt.clientY - rect.top
+        };
+    }
+
+    canvas.addEventListener('mousemove', function (evt) {
+        mouse_pos = getMousePos(canvas, evt);
+    }, false);
 
     // the bullshit I didt to hack apart p5. Possibly just rebuild this client in p5
     function clamp(val, min, max) {

@@ -112,7 +112,8 @@ class World {
                         }
                     }
                     else if (
-                        (otherPlayer.getState() == Player.State.IDLE)
+                        (otherPlayer.getState() == Player.State.IDLE
+                            && player.getState() < Player.State.IDLE)
                         && (SAT.testPolygonCircle(player.getPolygon(), otherPlayer.getHeadCircle())
                             || SAT.testPolygonCircle(player.getPolygon(), otherPlayer.getTailCircle()))
                     ) {
