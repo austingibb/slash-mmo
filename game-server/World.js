@@ -101,18 +101,22 @@ class World {
 
                     if (player.crossesOther(otherPlayer)) {
                         if (player.winsEncounter(otherPlayer)) {
+                            player.feed(otherPlayer.getPoints() * World.EAT_OTHER_EFFICIENCY);
                             otherPlayer.die();
                             console.log(otherPlayer.getId() + " died ");
                         }
                         else {
+                            otherPlayer.feed(player.getPoints() * World.EAT_OTHER_EFFICIENCY);
                             player.die();
                             console.log(player.getId() + " died ");
                         }
                     }
-                    else if ((player.getState() < otherPlayer.getState())
+                    else if (
+                        (otherPlayer.getState() == Player.State.IDLE)
                         && (SAT.testPolygonCircle(player.getPolygon(), otherPlayer.getHeadCircle())
-                        || SAT.testPolygonCircle(player.getPolygon(), otherPlayer.getTailCircle()))
+                            || SAT.testPolygonCircle(player.getPolygon(), otherPlayer.getTailCircle()))
                     ) {
+                        player.feed(otherPlayer.getPoints() * World.EAT_OTHER_EFFICIENCY);
                         otherPlayer.die();
                         console.log(otherPlayer.getId() + " died ");
                     }
@@ -172,5 +176,6 @@ World.MINIMUM_FOOD_MASS = 0.5;
 World.MAXIMUM_FOOD_MASS = 1;
 World.FOOD_VALUE = 2;
 World.DEAD_TIME = 3;
+World.EAT_OTHER_EFFICIENCY = 0.3;
 
 module.exports = World;
