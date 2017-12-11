@@ -109,10 +109,11 @@ class World {
                             console.log(player.getId() + " died ");
                         }
                     }
-                    else if (testPolygonCircle(player.getPolygon(), otherPlayer.getHeadCircle())
-                        || testPolygonCircle(player.getPolygon(), otherPlayer.getTailCircle())
+                    else if (SAT.testPolygonCircle(player.getPolygon(), otherPlayer.getHeadCircle())
+                        || SAT.testPolygonCircle(player.getPolygon(), otherPlayer.getTailCircle())
                     ) {
-
+                        otherPlayer.die();
+                        console.log(otherPlayer.getId() + " died ");
                     }
                 }
                 else if (otherQuadTreeObject.food) {
