@@ -2,7 +2,7 @@
 var lerp = require('lerp');
 var math = require('mathjs');
 var LineSegment = require('./LineSegment.js');
-var slashMathUtils = require('./SlashMathUtils.js')
+var SlashMathUtils = require('./SlashMathUtils.js')
 
 class Player {
     // A way of construction a player given a world position, starting point value, and delegate functions. The delegate functions are described within this constructor. They don't need to be defined as there are default functions available.
@@ -12,6 +12,9 @@ class Player {
 
         // the segment representing the player
         this._segment = new LineSegment(0, 0, 0, 0);
+
+        this._head_circle = new SAT.Circle(this.getHeadPos(), 0);
+        this._tail_circle = new SAT.Circle(this.getTailPos(), 0);
 
         // used for collision detection
         this._quad_tree_object = {
@@ -71,6 +74,15 @@ class Player {
         this._previous_head_point.y = y;
 
         this._slash_radius = this._slashRadiusFromPoints(this._points);
+
+        var max_vulnerable_radius = this._getMaximumVulnerableRadius(this._slash_radius, this._points);
+        var min_vulnerable_radius = this._getMinimumVulnerableRadius(this._slash_radius, this._points);
+
+        this._head_circle.r = max_vulnerable_radius;
+        this._tail_circle.r = max_vulnerable_radius;
+
+        this._current_max_vulnerable_radius = max_vulnerable_radius;
+        this._current_min_vulnerable_radius = min_vulnerable_radius;
     }
 
     // sets up this player to slash if they are able 
@@ -82,7 +94,7 @@ class Player {
             var distance = math.distance([current_x, current_y], [to_x, to_y]);
             // if the distance is greater than the radius the slash point will be on the circle around the player head.
             if (distance > this._slash_radius) {
-                var closest_point_on_circle = slashMathUtils.closestPointOnCircle(current_x, current_y, to_x, to_y, this._slash_radius, distance);
+                var closest_point_on_circle = SlashMathUtils.closestPointOnCircle(current_x, current_y, to_x, to_y, this._slash_radius, distance);
                 to_x = closest_point_on_circle[0];
                 to_y = closest_point_on_circle[1];
 
@@ -110,6 +122,9 @@ class Player {
             this._target_head_point.y = to_y;
             this._old_tail_point.x = this._segment.getPointOne().x;
             this._old_tail_point.y = this._segment.getPointOne().y;
+
+            this._current_min_vulnerable_radius = this._getMinimumVulnerableRadius(this._slash_radius, this._points);
+            this._current_max_vulnerable_radius = this._getMaximumVulnerableRadius(this._slash_radius, this._points);
         }
     }
 
@@ -130,6 +145,11 @@ class Player {
                 }
                 // determine the normalized (0-1 for the amount of time passed out of the transition time required) progression
                 var normalized_progression = this._time_since_slash / this._extend_time;
+
+                // update the vulnerable circle radii
+                var radius_min_max_diff = this._current_max_vulnerable_radius - this._current_min_vulnerable_radius;
+                this._head_circle.r = SlashMathUtils.map(normalized_progression, 0, 1, this._current_min_vulnerable_radius, this._current_min_vulnerable_radius + radius_min_max_diff / 2);
+                this._tail_circle.r = SlashMathUtils.map(normalized_progression, 0, 1, this._current_min_vulnerable_radius + radius_min_max_diff, this._current_min_vulnerable_radius + radius_min_max_diff / 2);
 
                 var new_head_point_x = this._extendInterpolationFunction(this._segment.getPointOne().x, this._target_head_point.x, normalized_progression);
                 var new_head_point_y = this._extendInterpolationFunction(this._segment.getPointOne().y, this._target_head_point.y, normalized_progression);
@@ -153,6 +173,10 @@ class Player {
                 // determine the normalized (0-1 for the amount of time passed out of the transition time required) progression
                 var normalized_progression = (this._time_since_slash - this._recoil_time_before) / this._recoil_time;
 
+                var radius_min_max_diff = this._current_max_vulnerable_radius - this._current_min_vulnerable_radius;
+                this._head_circle.r = SlashMathUtils.map(normalized_progression, 0, 1, this._current_min_vulnerable_radius + radius_min_max_diff / 2, this._current_max_vulnerable_radius);
+                this._tail_circle.r = SlashMathUtils.map(normalized_progression, 0, 1, this._current_min_vulnerable_radius + radius_min_max_diff / 2, this._current_min_vulnerable_radius);
+
                 var new_tail_point_x = this._recoilInterpolationFunction(this._old_tail_point.x, this._target_head_point.x, normalized_progression);
                 var new_tail_point_y = this._recoilInterpolationFunction(this._old_tail_point.y, this._target_head_point.y, normalized_progression);
 
@@ -172,19 +196,28 @@ class Player {
                 this._previous_head_point.x = this.getHeadPos().x;
                 this._previous_head_point.y = this.getHeadPos().y;
 
+                var radius_min_max_diff = this._current_max_vulnerable_radius - this._current_min_vulnerable_radius;
+                this._head_circle.r = this._current_min_vulnerable_radius + radius_min_max_diff / 2;
+                this._tail_circle.r = this._current_min_vulnerable_radius + radius_min_max_diff / 2;
+
                 this._segment.updatePointTwo(this._target_head_point.x, this._target_head_point.y);
+
                 recalculate_quad_tree_object = true;
                 this._extend_finalized = true;
             }
 
             if (!this._recoil_finalized && this._state > Player.State.RECOILING) {
+                this._head_circle.r = this._current_max_vulnerable_radius;
+                this._tail_circle.r = this._current_max_vulnerable_radius;
+
                 this._segment.updatePointOne(this._target_head_point.x, this._target_head_point.y);
+
                 recalculate_quad_tree_object = true;
                 this._recoil_finalized = true;
             }
 
             if (recalculate_quad_tree_object) {
-                this._recalculateQuadTreeObject();
+                this._recalculateQuadTreeObjectBoundingCircles();
             }
         }
 
@@ -220,8 +253,8 @@ class Player {
         var other_tail_pos = otherPlayer.getTailPos();
         var intersect_point = math.intersect([tail_pos.x, tail_pos.y], [head_pos.x, head_pos.y], [other_tail_pos.x, other_tail_pos.y], [other_head_pos.x, other_head_pos.y]);
 
-        var intersection_within_expansion = slashMathUtils.pointInRect(intersect_point[0], intersect_point[1], head_pos.x, head_pos.y, this._previous_head_point.x, this._previous_head_point.y);
-        var other_intersection_within_expansion = slashMathUtils.pointInRect(intersect_point[0], intersect_point[1], other_head_pos.x, other_head_pos.y, otherPlayer._previous_head_point.x, otherPlayer._previous_head_point.y);
+        var intersection_within_expansion = SlashMathUtils.pointInRect(intersect_point[0], intersect_point[1], head_pos.x, head_pos.y, this._previous_head_point.x, this._previous_head_point.y);
+        var other_intersection_within_expansion = SlashMathUtils.pointInRect(intersect_point[0], intersect_point[1], other_head_pos.x, other_head_pos.y, otherPlayer._previous_head_point.x, otherPlayer._previous_head_point.y);
 
         if (intersection_within_expansion && other_intersection_within_expansion) {
             return this.isLongerThan(otherPlayer);
@@ -278,6 +311,14 @@ class Player {
         return this._segment.getPolygon();
     }
 
+    getHeadCircle() {
+        return this._head_circle;
+    }
+
+    getTailCircle() {
+        return this._tail_circle;
+    }
+
     // simply returns the internally updated radius
     getSlashRadius() {
         return this._slash_radius;
@@ -309,7 +350,7 @@ class Player {
         return this._time_in_state;
     }
 
-    _recalculateQuadTreeObject() {
+    _recalculateQuadTreeObjectBoundingSegment() {
         var point_one_x = this._segment.getPointOne().x;
         var point_one_y = this._segment.getPointOne().y;
         var point_two_x = this._segment.getPointTwo().x;
@@ -318,6 +359,10 @@ class Player {
         this._quad_tree_object.y = math.min(point_one_y, point_two_y);
         this._quad_tree_object.width = math.abs(point_one_x - point_two_x);
         this._quad_tree_object.height = math.abs(point_one_y - point_two_y);
+    }
+
+    _recalculateQuadTreeObjectBoundingCircles() {
+        SlashMathUtils.updateQuadTreeObjectWithCircleBounds(this._tail_circle, this._head_circle, this._quad_tree_object);
     }
 
     _extendInterpolationFunction(oldVal, newVal, alpha) {
@@ -359,6 +404,14 @@ class Player {
     // provides the default for how long the player will sit between extend and recoil transitions
     _getExtendedTime(radius, points) {
         return 0;
+    }
+
+    _getMaximumVulnerableRadius(radius, points) {
+        return radius / 5;
+    }
+
+    _getMinimumVulnerableRadius(radius, points) {
+        return radius / 10;
     }
 }
 

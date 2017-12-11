@@ -183,4 +183,166 @@ describe("SlashMathUtils", function () {
             expect(result).to.equal(false);
         });
     });
+
+    describe("update quadtree object with circle bounds", function () {
+        it("can put the bounding rectangle around top left bottom right circles", function () {
+            var quad_tree_object = {
+                x: -1,
+                y: -1,
+                width: -1,
+                height: -1
+            }
+
+            var circle_one = {
+                pos: {
+                    x: 1,
+                    y: 0.6
+                },
+                r: 0.5
+            }
+
+            var circle_two = {
+                pos: {
+                    x: 4,
+                    y: 3
+                },
+                r: 0.75
+            }
+
+            SlashMathUtils.updateQuadTreeObjectWithCircleBounds(circle_one, circle_two, quad_tree_object);
+
+            expect(quad_tree_object.x).be.closeTo(0.5, 0.00001);
+            expect(quad_tree_object.y).to.closeTo(0.1, 0.00001);
+            expect(quad_tree_object.width).to.closeTo(4.25, 0.00001);
+            expect(quad_tree_object.height).to.closeTo(3.65, 0.00001);
+        });
+
+        it("can put the bounding rectangle around bottom right top left circles", function () {
+            var quad_tree_object = {
+                x: -1,
+                y: -1,
+                width: -1,
+                height: -1
+            }
+
+            var circle_one = {
+                pos: {
+                    x: 4,
+                    y: 3
+                },
+                r: 0.75
+            }
+
+            var circle_two = {
+                pos: {
+                    x: 1,
+                    y: 0.6
+                },
+                r: 0.5
+            }
+
+            SlashMathUtils.updateQuadTreeObjectWithCircleBounds(circle_one, circle_two, quad_tree_object);
+
+            expect(quad_tree_object.x).be.closeTo(0.5, 0.00001);
+            expect(quad_tree_object.y).to.closeTo(0.1, 0.00001);
+            expect(quad_tree_object.width).to.closeTo(4.25, 0.00001);
+            expect(quad_tree_object.height).to.closeTo(3.65, 0.00001);
+        });
+
+        it("can put the bounding rectangle around top right bottom left circles", function () {
+            var quad_tree_object = {
+                x: -1,
+                y: -1,
+                width: -1,
+                height: -1
+            }
+
+            var circle_one = {
+                pos: {
+                    x: 5,
+                    y: 0.6
+                },
+                r: 0.5
+            }
+
+            var circle_two = {
+                pos: {
+                    x: 1,
+                    y: 3
+                },
+                r: 0.75
+            }
+
+            SlashMathUtils.updateQuadTreeObjectWithCircleBounds(circle_one, circle_two, quad_tree_object);
+
+            expect(quad_tree_object.x).be.closeTo(0.25, 0.00001);
+            expect(quad_tree_object.y).to.closeTo(0.1, 0.00001);
+            expect(quad_tree_object.width).to.closeTo(5.25, 0.00001);
+            expect(quad_tree_object.height).to.closeTo(3.65, 0.00001);
+        });
+
+        it("can put the bounding rectangle around circle overshadowing other", function () {
+            var quad_tree_object = {
+                x: -1,
+                y: -1,
+                width: -1,
+                height: -1
+            }
+
+            var circle_one = {
+                pos: {
+                    x: 4,
+                    y: 2.5
+                },
+                r: 2
+            }
+
+            var circle_two = {
+                pos: {
+                    x: 8,
+                    y: 2
+                },
+                r: 0.5
+            }
+
+            SlashMathUtils.updateQuadTreeObjectWithCircleBounds(circle_one, circle_two, quad_tree_object);
+
+            expect(quad_tree_object.x).be.closeTo(2, 0.00001);
+            expect(quad_tree_object.y).to.closeTo(0.5, 0.00001);
+            expect(quad_tree_object.width).to.closeTo(6.5, 0.00001);
+            expect(quad_tree_object.height).to.closeTo(4, 0.00001);
+        });
+
+        it("can put the bounding rectangle around circle containing other", function () {
+            var quad_tree_object = {
+                x: -1,
+                y: -1,
+                width: -1,
+                height: -1
+            }
+
+            var circle_one = {
+                pos: {
+                    x: 4,
+                    y: 5
+                },
+                r: 2
+            }
+
+            var circle_two = {
+                pos: {
+                    x: 4,
+                    y: 5
+                },
+                r: 0.5
+            }
+
+            SlashMathUtils.updateQuadTreeObjectWithCircleBounds(circle_one, circle_two, quad_tree_object);
+
+            expect(quad_tree_object.x).be.closeTo(2, 0.00001);
+            expect(quad_tree_object.y).to.closeTo(3, 0.00001);
+            expect(quad_tree_object.width).to.closeTo(4, 0.00001);
+            expect(quad_tree_object.height).to.closeTo(4, 0.00001);
+        });
+    });
 });

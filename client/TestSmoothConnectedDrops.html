@@ -1125,7 +1125,6 @@
         var waist = clamp(map(dist, minDistance, maxDistance, maxWaist, minWaist), minWaist, maxWaist);
         var radius_one = clamp(map(dist, minDistance, maxDistance, maxRadius, minRadius), minRadius, maxRadius);
         var radius_two = clamp(map(dist, minDistance, maxDistance, minRadius, minRadius), minRadius, minRadius);
-        //drawSurroundingCurve(point_one, point_two, radius, waist);
         drawConnectedCircles(point_one, point_two, radius_one, radius_two);
     }
 

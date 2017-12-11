@@ -109,10 +109,18 @@ class World {
                             console.log(player.getId() + " died ");
                         }
                     }
+                    else if (testPolygonCircle(player.getPolygon(), otherPlayer.getHeadCircle())
+                        || testPolygonCircle(player.getPolygon(), otherPlayer.getTailCircle())
+                    ) {
+
+                    }
                 }
                 else if (otherQuadTreeObject.food) {
                     var food = otherQuadTreeObject.food;
-                    if (SAT.testPolygonCircle(player.getPolygon(), food.getCircle())) {
+                    if (SAT.testPolygonCircle(player.getPolygon(), food.getCircle())
+                        || SAT.testCircleCircle(player.getHeadCircle(), food.getCircle())
+                        || SAT.testCircleCircle(player.getTailCircle(), food.getCircle())
+                    ) {
                         player.feed(food.getMass() * World.FOOD_VALUE);
                         this.clearFood(food.getId());
                     }
@@ -146,6 +154,8 @@ class World {
             player_representation.tail_y = player.getTailPos().y;
             player_representation.head_x = player.getHeadPos().x;
             player_representation.head_y = player.getHeadPos().y;
+            player_representation.tail_radius = player.getTailCircle().r;
+            player_representation.head_radius = player.getHeadCircle().r;
             player_representation.state = player.getState();
             player_representation.slash_radius = player.getSlashRadius();
             world_representation.player_list[player.getId()] = player_representation;

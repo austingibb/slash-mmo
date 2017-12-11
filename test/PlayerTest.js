@@ -35,6 +35,14 @@ class TestPlayer extends Player {
     _getCooldownTime(radius, points) {
         return 10;
     }
+
+    _getMaximumVulnerableRadius(radius, points) {
+        return 2;
+    }
+
+    _getMinimumVulnerableRadius(radius, points) {
+        return 1;
+    }
 }
 
 describe("Player", function () {
@@ -51,6 +59,9 @@ describe("Player", function () {
             expect(player._segment.getPointTwo().x).be.closeTo(1, 0.001);
             expect(player._segment.getPointTwo().y).be.closeTo(2, 0.001);
 
+            expect(player.getHeadCircle().r).be.closeTo(1.1, 0.0001);
+            expect(player.getTailCircle().r).be.closeTo(1.9, 0.0001);
+
             player.update(3);
             expect(player._state).to.equal(Player.State.EXTENDING);
             expect(player._segment.getPointOne().x).be.equal(0);
@@ -58,12 +69,8 @@ describe("Player", function () {
             expect(player._segment.getPointTwo().x).be.closeTo(2.5, 0.001);
             expect(player._segment.getPointTwo().y).be.closeTo(5, 0.001);
 
-            player.update(5);
-            expect(player._state).to.equal(Player.State.EXTENDED);
-            expect(player._segment.getPointOne().x).be.equal(0);
-            expect(player._segment.getPointOne().y).be.equal(0);
-            expect(player._segment.getPointTwo().x).be.equal(5);
-            expect(player._segment.getPointTwo().y).be.equal(10);
+            expect(player.getHeadCircle().r).be.closeTo(1.25, 0.0001);
+            expect(player.getTailCircle().r).be.closeTo(1.75, 0.0001);
 
             player.update(5);
             expect(player._state).to.equal(Player.State.EXTENDED);
@@ -71,6 +78,19 @@ describe("Player", function () {
             expect(player._segment.getPointOne().y).be.equal(0);
             expect(player._segment.getPointTwo().x).be.equal(5);
             expect(player._segment.getPointTwo().y).be.equal(10);
+
+            expect(player.getHeadCircle().r).be.closeTo(1.5, 0.0001);
+            expect(player.getTailCircle().r).be.closeTo(1.5, 0.0001);
+
+            player.update(5);
+            expect(player._state).to.equal(Player.State.EXTENDED);
+            expect(player._segment.getPointOne().x).be.equal(0);
+            expect(player._segment.getPointOne().y).be.equal(0);
+            expect(player._segment.getPointTwo().x).be.equal(5);
+            expect(player._segment.getPointTwo().y).be.equal(10);
+
+            expect(player.getHeadCircle().r).be.closeTo(1.5, 0.0001);
+            expect(player.getTailCircle().r).be.closeTo(1.5, 0.0001);
 
             player.update(5);
             expect(player._state).to.equal(Player.State.RECOILING);
@@ -78,6 +98,9 @@ describe("Player", function () {
             expect(player._segment.getPointOne().y).be.equal(0);
             expect(player._segment.getPointTwo().x).be.equal(5);
             expect(player._segment.getPointTwo().y).be.equal(10);
+
+            expect(player.getHeadCircle().r).be.closeTo(1.5, 0.0001);
+            expect(player.getTailCircle().r).be.closeTo(1.5, 0.0001);
 
             player.update(2);
             expect(player._state).to.equal(Player.State.RECOILING);
@@ -86,6 +109,9 @@ describe("Player", function () {
             expect(player._segment.getPointTwo().x).be.equal(5);
             expect(player._segment.getPointTwo().y).be.equal(10);
 
+            expect(player.getHeadCircle().r).be.closeTo(1.6, 0.0001);
+            expect(player.getTailCircle().r).be.closeTo(1.4, 0.0001);
+
             player.update(3);
             expect(player._state).to.equal(Player.State.RECOILING);
             expect(player._segment.getPointOne().x).be.closeTo(2.5, 0.001);
@@ -93,12 +119,8 @@ describe("Player", function () {
             expect(player._segment.getPointTwo().x).be.equal(5);
             expect(player._segment.getPointTwo().y).be.equal(10);
 
-            player.update(5);
-            expect(player._state).to.equal(Player.State.COOLDOWN);
-            expect(player._segment.getPointOne().x).be.equal(5);
-            expect(player._segment.getPointOne().y).be.equal(10);
-            expect(player._segment.getPointTwo().x).be.equal(5);
-            expect(player._segment.getPointTwo().y).be.equal(10);
+            expect(player.getHeadCircle().r).be.closeTo(1.75, 0.0001);
+            expect(player.getTailCircle().r).be.closeTo(1.25, 0.0001);
 
             player.update(5);
             expect(player._state).to.equal(Player.State.COOLDOWN);
@@ -106,6 +128,19 @@ describe("Player", function () {
             expect(player._segment.getPointOne().y).be.equal(10);
             expect(player._segment.getPointTwo().x).be.equal(5);
             expect(player._segment.getPointTwo().y).be.equal(10);
+
+            expect(player.getHeadCircle().r).be.closeTo(2, 0.0001);
+            expect(player.getTailCircle().r).be.closeTo(2, 0.0001);
+
+            player.update(5);
+            expect(player._state).to.equal(Player.State.COOLDOWN);
+            expect(player._segment.getPointOne().x).be.equal(5);
+            expect(player._segment.getPointOne().y).be.equal(10);
+            expect(player._segment.getPointTwo().x).be.equal(5);
+            expect(player._segment.getPointTwo().y).be.equal(10);
+
+            expect(player.getHeadCircle().r).be.closeTo(2, 0.0001);
+            expect(player.getTailCircle().r).be.closeTo(2, 0.0001);
 
             player.update(5);
             expect(player._state).to.equal(Player.State.IDLE);
@@ -113,6 +148,9 @@ describe("Player", function () {
             expect(player._segment.getPointOne().y).be.equal(10);
             expect(player._segment.getPointTwo().x).be.equal(5);
             expect(player._segment.getPointTwo().y).be.equal(10);
+
+            expect(player.getHeadCircle().r).be.closeTo(2, 0.0001);
+            expect(player.getTailCircle().r).be.closeTo(2, 0.0001);
         });
 
         it("Can Limit the Slash to the Slash Radius", function () {
