@@ -109,8 +109,9 @@ class World {
                             console.log(player.getId() + " died ");
                         }
                     }
-                    else if (SAT.testPolygonCircle(player.getPolygon(), otherPlayer.getHeadCircle())
-                        || SAT.testPolygonCircle(player.getPolygon(), otherPlayer.getTailCircle())
+                    else if ((player.getState() < otherPlayer.getState())
+                        && (SAT.testPolygonCircle(player.getPolygon(), otherPlayer.getHeadCircle())
+                        || SAT.testPolygonCircle(player.getPolygon(), otherPlayer.getTailCircle()))
                     ) {
                         otherPlayer.die();
                         console.log(otherPlayer.getId() + " died ");
