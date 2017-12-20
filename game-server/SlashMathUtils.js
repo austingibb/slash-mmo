@@ -59,3 +59,19 @@ module.exports.updateQuadTreeObjectWithCircleBounds = function updateQuadTreeObj
     quad_tree_object.width = highest_x - lowest_x;
     quad_tree_object.height = highest_y - lowest_y;
 }
+
+//module.exports.angleBetween = function angleBetween(v1, v2) {
+//    var dotmagmag = this.dot(v) / (this.mag() * v.mag());
+//    // Mathematically speaking: the dotmagmag variable will be between -1 and 1
+//    // inclusive. Practically though it could be slightly outside this range due
+//    // to floating-point rounding issues. This can make Math.acos return NaN.
+//    //
+//    // Solution: we'll clamp the value to the -1,1 range
+//    var angle = Math.acos(Math.min(1, Math.max(-1, dotmagmag)));
+//    if (this.p5) {
+//        if (this.p5._angleMode === constants.DEGREES) {
+//            angle = polarGeometry.radiansToDegrees(angle);
+//        }
+//    }
+//    return angle;
+//};

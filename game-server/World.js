@@ -177,6 +177,6 @@ World.MINIMUM_FOOD_MASS = 0.5;
 World.MAXIMUM_FOOD_MASS = 1;
 World.FOOD_VALUE = 2;
 World.DEAD_TIME = 3;
-World.EAT_OTHER_EFFICIENCY = 0.3;
+World.EAT_OTHER_EFFICIENCY = 0.5;
 
 module.exports = World;

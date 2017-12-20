@@ -18,6 +18,7 @@
     },
     "homepage": "https://github.com/austingibb/slash-mmo#readme",
     "dependencies": {
+        "browserify": "^14.5.0",
         "chai": "^4.1.2",
         "express": "^4.16.2",
         "lerp": "^1.0.3",

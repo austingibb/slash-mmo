@@ -7,8 +7,8 @@
 
 <!--<script src="require/2.3.5/require.js"></script>-->
 <!--<script src="socket.io/2.0.4/socket.io.js"></script>-->
-<!--<script src="http://localhost:42069/socket.io/socket.io.js"></script>-->
-<script src="http://98.202.130.238:42069/socket.io/socket.io.js"></script>
+<script src="http://localhost:42069/socket.io/socket.io.js"></script>
+<!--<script src="http://98.202.130.238:42069/socket.io/socket.io.js"></script>-->
 <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.5.16/p5.js"></script>
 <img id="dickbutt" src="https://botw-pd.s3.amazonaws.com/styles/logo-thumbnail/s3/082016/untitled-1_5.png?itok=GQSXV16J" style="display: none"/>
@@ -1120,8 +1120,8 @@
     var players = {};
     var food_list = {};
 
-    //var socket = io("http://localhost:42069");
-    var socket = io("http://98.202.130.238:42069");
+    var socket = io("http://localhost:42069");
+    //var socket = io("http://98.202.130.238:42069");
     var client_id = -1;
     var world_width = 0;
     var world_height = 0;
