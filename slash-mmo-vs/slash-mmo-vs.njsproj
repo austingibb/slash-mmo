@@ -6,7 +6,7 @@
     <ProjectGuid>{6083d900-8d2d-47e9-a390-372bd892ec53}</ProjectGuid>
     <ProjectHome>..\</ProjectHome>
     <ProjectView>ShowAllFiles</ProjectView>
-    <StartupFile>app.js</StartupFile>
+    <StartupFile>server.js</StartupFile>
     <WorkingDirectory>D:\Development\slash-mmo</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{349c5851-65df-11da-9384-00065b846f21};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
@@ -17,20 +17,22 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
+    <Compile Include="client\bundle.js" />
     <Compile Include="client\client.js">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="client\socket.io\2.0.4\socket.io.js" />
-    <Compile Include="game-server\Food.js" />
-    <Compile Include="game-server\GameLoop.js" />
-    <Compile Include="game-server\LineSegment.js" />
-    <Compile Include="game-server\Player.js" />
-    <Compile Include="game-server\SAT.js" />
-    <Compile Include="game-server\SlashMathUtils.js" />
-    <Compile Include="game-server\World.js" />
-    <Compile Include="test\WorldTest.js">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="game-server\food.js" />
+    <Compile Include="game-server\game-loop.js" />
+    <Compile Include="game-server\line-segment.js" />
+    <Compile Include="game-server\player.js" />
+    <Compile Include="game-server\sat.js" />
+    <Compile Include="game-server\slash-math-utils.js" />
+    <Compile Include="game-server\world.js" />
+    <Compile Include="test\line-segment-test.js" />
+    <Compile Include="test\player-test.js" />
+    <Compile Include="test\slash-math-utils-test.js" />
+    <Compile Include="test\world-test.js" />
     <Content Include="client\client.html" />
     <Content Include="client\TestSmoothConnectedDrops.html">
       <SubType>Code</SubType>
@@ -39,10 +41,7 @@
     <Content Include="package-lock.json" />
     <Content Include="package.json" />
     <Content Include="README.md" />
-    <Compile Include="app.js" />
-    <Compile Include="test\LineSegmentTest.js" />
-    <Compile Include="test\PlayerTest.js" />
-    <Compile Include="test\SlashMathUtilsTest.js" />
+    <Compile Include="server.js" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="client\" />

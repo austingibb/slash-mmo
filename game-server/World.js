@@ -1,8 +1,8 @@
 ﻿var Quadtree = require('quadtree-lib');
-var Player = require('./Player.js');
-var Food = require('./Food.js');
-var SAT = require('./SAT.js');
-var SlashMathUtils = require('./SlashMathUtils.js');
+var Player = require('./player.js');
+var Food = require('./food.js');
+var SAT = require('./sat.js');
+var SlashMathUtils = require('./slash-math-utils.js');
 
 class World {
     constructor(world_width, world_height, food_max) {

@@ -1,4 +1,4 @@
-﻿var SAT = require('./SAT.js');
+﻿var SAT = require('./sat.js');
 var math = require('mathjs');
 
 class Food {

@@ -1,8 +1,8 @@
-﻿var SAT = require('./SAT.js');
+﻿var SAT = require('./sat.js');
 var lerp = require('lerp');
 var math = require('mathjs');
-var LineSegment = require('./LineSegment.js');
-var SlashMathUtils = require('./SlashMathUtils.js')
+var LineSegment = require('./line-segment.js');
+var SlashMathUtils = require('./slash-math-utils.js')
 
 class Player {
     // A way of construction a player given a world position, starting point value, and delegate functions. The delegate functions are described within this constructor. They don't need to be defined as there are default functions available.
