@@ -379,7 +379,8 @@ class Player {
             return 0;
         }
 
-        return points * delta / 70;
+        //return points * delta / 70;
+        return 0;
     }
 
     // converts the points to the desired radius (allowable slash area) 
@@ -407,7 +408,7 @@ class Player {
     }
 
     _getMaximumVulnerableRadius(radius, points) {
-        return radius / 15;
+        return radius / 10;
     }
 
     _getMinimumVulnerableRadius(radius, points) {

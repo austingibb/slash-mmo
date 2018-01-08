@@ -1218,7 +1218,9 @@
         }
 
         curveThroughPoints(points);
-        drawCircle(ctx, point_one, radius_one);
+
+        drawCircle(ctx, point_two, radius_two * .95);
+        drawCircle(ctx, point_one, radius_one * .95);
     }
 
     function rotateVector(vec, angle) {

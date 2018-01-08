@@ -21,7 +21,16 @@
     <Compile Include="client\client.js">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="client\paper-experiments.js">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="client\socket.io\2.0.4\socket.io.js" />
+    <Compile Include="client\client-world.js">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="client\world-renderer.js">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="game-server\food.js" />
     <Compile Include="game-server\game-loop.js" />
     <Compile Include="game-server\line-segment.js" />
@@ -34,6 +43,9 @@
     <Compile Include="test\slash-math-utils-test.js" />
     <Compile Include="test\world-test.js" />
     <Content Include="client\client.html" />
+    <Content Include="client\PaperExperiments.html">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="client\TestSmoothConnectedDrops.html">
       <SubType>Code</SubType>
     </Content>
