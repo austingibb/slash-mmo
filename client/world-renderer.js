@@ -178,32 +178,33 @@ class WorldRenderer {
 
     worldToCanvasX(coord) {
         var client_player = this._world.getClientPlayer();
-        return this._worldToCanvas(coord, client_player.head_x);
+        return this._worldToCanvas(coord, client_player.head_x, this._offset_x);
     }
 
     worldToCanvasY(coord) {
         var client_player = this._world.getClientPlayer();
-        return this._worldToCanvas(coord, client_player.head_y);
+        return this._worldToCanvas(coord, client_player.head_y, this._offset_y);
     }
 
-    _worldToCanvas(coord, world_offset) {
+    _worldToCanvas(coord, world_offset, canvas_offset) {
         var canvas_coord = coord - world_offset + this._view_port_size / 2;
         canvas_coord *= this._ppwu;
+        canvas_coord += canvas_offset;
         return canvas_coord;
     }
 
     canvasToWorldX(coord) {
         var client_player = this._world.getClientPlayer();
-        return this._canvasToWorld(coord, client_player.head_x);
+        return this._canvasToWorld(coord, client_player.head_x, this._offset_x);
     }
 
     canvasToWorldY(coord) {
         var client_player = this._world.getClientPlayer();
-        return this._canvasToWorld(coord, client_player.head_y);
+        return this._canvasToWorld(coord, client_player.head_y, this._offset_y);
     }
 
-    _canvasToWorld(coord, world_offset) {
-        var world_coord = coord / this.getPixelsPerWorldUnit();
+    _canvasToWorld(coord, world_offset, canvas_offset) {
+        var world_coord = (coord - canvas_offset) / this.getPixelsPerWorldUnit();
         world_coord = world_coord + world_offset - this._view_port_size / 2;
         return world_coord;
     }

@@ -18,12 +18,16 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
   <ItemGroup>
     <Compile Include="client\bundle.js" />
+    <Compile Include="client\bundle2.js" />
     <Compile Include="client\client.js">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="client\constants.js" />
+    <Compile Include="client\food-renderer.js" />
     <Compile Include="client\paper-experiments.js">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="client\player-renderer.js" />
     <Compile Include="client\socket.io\2.0.4\socket.io.js" />
     <Compile Include="client\client-world.js">
       <SubType>Code</SubType>
